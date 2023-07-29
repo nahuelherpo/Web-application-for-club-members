@@ -1,0 +1,88 @@
+{% extends 'layout.html' %} {% block title %}Configuración del sistema{% endblock %} {% block main %}
+<div class="md:w-1/2 w-full m-auto">
+  <div class="container pt-2">
+    <div class="card">
+      <h2 class="card-header text-2xl">Configuración del sistema:</h2>
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item">Cantidad de elementos por página: {{config.cant_elementos}}</li>
+          <li class="list-group-item">
+            {% if config.pago_habilitado %}Los pagos estan habilitados{% else %} Los pagos estan deshabilitados {% endif
+            %}
+          </li>
+          <li class="list-group-item">Información de contacto: {{config.info_contacto}}</li>
+          <li class="list-group-item">Texto para el recibo: {{config.texto_recibo}}</li>
+          <li class="list-group-item">Valor cuota base: {{config.valor_cuota_base}}</li>
+          <li class="list-group-item">Porcentaje de recargo para morosos: {{config.porcentaje_recargo}}%</li>
+        </ul>
+        <button
+          type="button"
+          class="btn btn-primary bg-blue-900 mt-2 buttom-right"
+          data-bs-toggle="modal"
+          data-bs-target="#exampleModal"
+        >
+          Modificar configuración
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modificar Configuración</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST">
+          <div class="row mb-3">
+            <div class="col-sm">
+              <div class="form-group">
+                {{ form.hidden_tag() }} {{ form.cant_elementos.label }} {{ form.cant_elementos( class="form-control") }}
+              </div>
+            </div>
+            <div class="col-sm">
+              <div class="form-group">
+                {{form.hidden_tag() }} {{ form.habilitar_pagos.label }} {{ form.habilitar_pagos(class="form-control") }}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.informacion_contacto.label }} {{form.informacion_contacto(class="form-control
+            resize-none") }}
+          </div>
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.texto_recibo.label }} {{ form.texto_recibo(class="form-control resize-none")
+            }}
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm">
+              <div class="form-group">
+                {{form.hidden_tag() }} {{ form.valor_cuota.label }} {{ form.valor_cuota(class="form-control") }}
+              </div>
+            </div>
+            <div class="col-sm">
+              <div class="form-group">
+                {{form.hidden_tag() }} {{ form.recargo.label }} {{ form.recargo(class="form-control") }}
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <input type="submit" value="Guardar cambios" class="btn btn-primary block ml-auto bg-blue-900" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

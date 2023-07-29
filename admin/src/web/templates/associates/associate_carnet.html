@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<style>
+		* {
+			box-sizing: border-box;
+			font-family: 'Roboto Slab', Arial, 'Helvetica Neue', Helvetica, sans-serif;
+		}
+
+		body {
+
+			margin: 0;
+			padding: 0;
+			background-color: #ffffff;
+			margin: 0;
+			padding: 0;
+			-webkit-text-size-adjust: none;
+			text-size-adjust: none;
+		}
+	</style>
+</head>
+
+<body>
+	<table align="center" cellspacing="0" style="width: 685px;">
+		<tbody>
+			<tr>
+				<td style="font-weight: 400; text-align: left; vertical-align: top;" width="25%">
+					<div align="center" class="alignment" style="line-height:10px; padding-top: 5px;">
+						<img src="{{logo}}" style="display: block; height: auto; width: 86px; max-width: 100%;"
+							width="86" />
+					</div>
+				</td>
+				<td style=" font-weight: 400; text-align: left; vertical-align: top;" width="75%">
+					<div
+						style="font-size:40px; font-weight:700; letter-spacing:-1px; line-height:200%; text-align:left">
+						<p style="margin: 0;">Club Deportivo Villa Elisa</p>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div style="font-size: 1px; line-height: 1px; border-top: 1px solid #BBBBBB; margin-top: 20px;"></div>
+	<table align="center" cellspacing="0" style=" width: 685px;">
+		<tbody>
+			<tr>
+				<td style=" font-weight: 400; text-align: left; padding-left: 20px; padding-right: 20px; vertical-align: top;"
+					width="50%">
+					<div style="padding: 25px 5px 5px 5px ;width:100%;">
+						<div align="center" style="line-height:10px"><img src="{{image}}"
+								style="display: block; height: 240px; width: 320px; max-width: 100%;" width="272" />
+						</div>
+					</div>
+					<div style="padding: 25px 5px 5px 5px ;width:100%;">
+						<div style="font-size: 1px; line-height: 1px; border-top: 1px solid #BBBBBB;">
+
+						</div>
+					</div>
+					<div style="padding-bottom:25px;padding-top:20px;">
+						<div style="font-size:24px;font-weight:700;">
+							<p style="margin: 0; text-align: center;">Estado: {% if moroso %}Moroso {% else %} Al dia {% endif %} </p>
+						</div>
+					</div>
+				</td>
+				<td style=" font-weight: 400; text-align: left; padding: 0px 20px 20px 20px; vertical-align: top;">
+					<div style="padding: 30px 10px 20px 10px;">
+						<div style="font-size:24px;font-weight:700;line-height:120%;text-align:center;">
+							<p style="margin: 0;">{{ associate.name }} {{associate.surname}}</p>
+						</div>
+					</div>
+					<div>
+						<div style="font-size:18px;font-weight:400;line-height:120%;text-align:left; margin-left: 62px;">
+							<p style="margin: 0; margin-bottom: 16px;">DNI: {{associate.document_number}}</p>
+							<p style="margin: 0; margin-bottom: 16px;">Socio: {{associate.id}}</p>
+							<p style="margin: 0;">Fecha alta: {{associate.inserted_at.day}}/{{associate.inserted_at.month}}/{{associate.inserted_at.year}}</p>
+						</div>
+					</div>
+					<div>
+
+						<div style="padding: 15px 5px 5px 5px;width:100%;">
+							<div align="center" style="line-height:10px"><img src="{{qr}}"
+									style="display: block; height: auto; width: 180px; max-width: 100%;" />
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div style="font-size: 1px; line-height: 1px; border-top: 1px solid #BBBBBB;"></div>
+</body>
+
+</html>

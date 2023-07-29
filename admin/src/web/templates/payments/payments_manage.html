@@ -1,0 +1,82 @@
+{% extends 'layout.html' %} {% block title %}Configuracion del sistema{% endblock %} {% block main %}
+<script>
+  function open_associates_list() {
+    var modal = document.querySelector("#modal_associates");
+    var modalObject = bootstrap.Modal.getOrCreateInstance(modal);
+    modalObject.show();
+  }
+</script>
+{% if show_modal %}
+<body onload="open_associates_list()">
+{% endif %}
+<div class="md:w-1/2 w-full m-auto">
+  <div class="container pt-2">
+    <div class="card">
+      <h2 class="card-header text-2xl" style="text-align: center;">Gestion de Pagos</h2>
+      <div class="card-body">
+        <ul class="list-group" style="text-align: center;">
+          <li class="list-group-item">
+            {% if config.pago_habilitado %} Pagos habilitados {% else %} Pagos deshabilitados {% endif%}
+          </li>
+          <li class="list-group-item">
+            <form action="/payments/generate_installments" method="GET">
+              <input type="submit" value="Generar cuotas del año 2022" class="btn btn-primary ml-auto bg-blue-900"/>
+            </form>
+          </li>
+          <li class="list-group-item">
+            <form action="/payments/get_slow_payer" method="GET">
+              <input type="submit" value="Buscar asociados morosos" class="btn btn-primary ml-auto bg-blue-900"/>
+            </form>
+          </li>
+          <li class="list-group-item">
+            <p>Buscar asociado</p>
+            <form action="/payments/get_asociate_payments" method="POST">
+              <div class="row mb-3">
+                <div class="col-sm">
+                  <div class="form-group">
+                    {{form.hidden_tag() }} {{ form.search_by_id.label }} {{ form.search_by_id(class="form-control") }}
+                  </div>
+                </div>
+                <div class="col-sm">
+                  <div class="form-group">
+                    {{form.hidden_tag() }} {{ form.text_for_search.label }} {{form.text_for_search(class="form-control resize-none") }}
+                  </div>
+                </div>
+              </div>
+              <input type="submit" value="Buscar" class="btn btn-primary ml-auto bg-blue-900"/>
+            </form>
+          </li>
+        </ul>
+        <a href="/" class="btn btn-danger bg-red-500 mt-2" type="button">Volver</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--VENTANA MODAL-->
+<div class="modal fade" id="modal_associates" tabindex="-1" aria-labelledby="modal_associates" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="associatesList">Asociados encontrados:</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <ul class="list-group" style="text-align: center;">
+            {% for a in associates %}
+            <li class="list-group-item">
+              <form method="GET" action="/payments/get_asociate_fees/{{a.id}}/1">
+                {{a.name}} {{ a.surname }}
+                <input type="submit" value="Ver pagos" class="btn btn-primary ml-auto bg-blue-900"/>
+              </form>
+            </li>
+            {% endfor %}
+          </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal"><a href="{{url_for('payment.payments_index')}}">Cerrar</a></button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

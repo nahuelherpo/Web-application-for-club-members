@@ -1,0 +1,39 @@
+{% extends 'layout.html' %} {% block title %}Nuevo Usuario{% endblock %} {% block main %}
+<!--PANTALLA DE CREACION-->
+<div class="md:w-1/2 w-full m-auto">
+    <div class="container pt-2">
+      <div class="card">
+        <h2 class="card-header text-2xl" style="text-align:center;">Editar Asociado</h2>
+        <div class="card-body">
+            <form method="POST">
+               {% for field in form %}
+               {% if not loop.last %}
+                <div class="row mb-3">
+                    <div class="col-sm">
+                    <div class="form-group">
+                         {{ field.label }} {{ field(class="form-control") }}
+                    </div>
+                    </div>
+                </div>
+               {% else %}
+               <div class="row mb-3" hidden>
+                    <div class="col-sm">
+                    <div class="form-group">
+                         {{ field.label }} {{ field(class="form-control") }}
+                    </div>
+                    </div>
+                </div>
+               {% endif %}
+               {% endfor %}
+     
+                <br>
+                <div class="modal-footer">
+                    <a href="{{url_for('associates.associates_index',page=1)}}" class="btn btn-danger bg-red-600" type="button">Cancelar</a>
+                    <input type="submit" value="Guardar cambios" class="btn btn-primary block ml-auto bg-blue-900" />
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

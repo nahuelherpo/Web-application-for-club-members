@@ -1,0 +1,131 @@
+{% extends 'layout.html' %} {% block main %}
+<div class="md:w-1/2 w-full m-auto">
+  <div class="container pt-2">
+    <div class="card">
+      <h2 class="card-header text-2xl">Detalle de la disciplina</h2>
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item">Nombre de la disciplina: {{discipline.name}}</li>
+          <li class="list-group-item">
+            {% if discipline.enabled %}Habilitada para inscripción{% else %} Deshabilitada para inscripción {% endif %}
+          </li>
+          <li class="list-group-item">Costo al mes: {{discipline.monthly_price}}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="w-full my-2 text-center">
+      <button class="btn btn-primary bg-blue-600" data-bs-toggle="modal" data-bs-target="#exampleModal" type="button">
+        Crear y agregar categoria
+      </button>
+      {% if available_categories|length > 0 %} ó
+      <button class="btn btn-primary bg-blue-600" data-bs-toggle="modal" data-bs-target="#modalSelect" type="button">
+        Elegir una categoria existente
+      </button>
+    </div>
+    {% endif %} {% if categories|length > 0 %}
+    <table class="table table-light table-striped table-bordered table-sm table-responsive shadow-md">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Nombre categoría:</th>
+          <th scope="col">Instructores</th>
+          <th scope="col">Días</th>
+          <th scope="col">Franja horaria</th>
+          <th scope="col">Quitar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+        <tr>
+          <td>{{category.name}}</td>
+          <td>{{category.instructors}}</td>
+          <td>{{category.days}}</td>
+          <td>{{category.hour_fence}}</td>
+          <td>
+            <form
+              action="/disciplines/desasociate/{{category.id}}/{{discipline.id}}"
+              class="p-0 m-0 inline"
+              method="post"
+            >
+              <button type="submit" class="btn btn-danger bg-red-600">
+                <i class="fa-solid fa-minus text-white"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Crear y agregar categoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/disciplines/id/{{discipline.id}}" method="POST">
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.name_category.label }} {{ form.name_category(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.instructor_category.label }} {{
+            form.instructor_category(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.days_category.label }} {{ form.days_category(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.hour_fence_category.label }} {{
+            form.hour_fence_category(class="form-control") }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <input type="submit" value="Crear!" class="btn btn-primary block ml-auto bg-blue-900" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="modalSelect"
+  tabindex="-1"
+  aria-labelledby="modalSelect"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSelect">Agregar una categoria existente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/disciplines/add/{{discipline.id}}" method="POST">
+          <div class="form-group">
+            {{form2.hidden_tag() }} {{ form2.selected_category.label }} {{ form2.selected_category(class="form-control")
+            }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <input type="submit" value="Agregar!" class="btn btn-primary block ml-auto bg-blue-900" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}

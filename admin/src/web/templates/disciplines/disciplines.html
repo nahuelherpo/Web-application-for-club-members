@@ -1,0 +1,224 @@
+{% extends 'layout.html' %} {% block main %}
+<script>
+  var selectedToDestoy = -1;
+  const handle_open = (id, name, monthlyPrice) => {
+    modal = document.querySelector("#modalEdit");
+    var modalObject = bootstrap.Modal.getOrCreateInstance(modal);
+    modalObject.show();
+    document.querySelector("#new_name").value = name;
+    document.querySelector("#new_monthly_price").value = monthlyPrice;
+    document.querySelector("#id_anterior").value = id;
+  };
+  const handle_open_destroy = (id) => {
+    modal = document.querySelector("#modal_destroy");
+    var modalObject = bootstrap.Modal.getOrCreateInstance(modal);
+    selectedToDestoy = id;
+    modalObject.show();
+  };
+
+  const handle_on_destroy = async (page) => {
+    document.querySelector("#form_destroy").action = `/disciplines/destroy/${selectedToDestoy}/${page}`;
+    document.querySelector("#form_destroy").submit();
+  };
+</script>
+<div class="container pt-2">
+  <div class="card mt-2">
+    <h2 class="card-header text-2xl">Lista de disciplinas</h2>
+
+    <div class="card-body">
+      <button class="btn btn-primary bg-blue-900" data-bs-toggle="modal" data-bs-target="#exampleModal" type="button">
+        Crear nueva disciplina
+      </button>
+      <br />
+      <br />
+      {% if disciplines|length > 0 %}
+      <table class="table table-light table-striped table-bordered table-sm table-responsive shadow-md">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Precio mensual</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones:</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dis in disciplines %}
+          <tr>
+            <td>{{dis.name}}</td>
+            <td>$ {{dis.monthly_price}}</td>
+            {% if dis.enabled %}
+            <td>Habilitada</td>
+            {% else %}
+            <td>No habilitada</td>
+            {% endif %}
+            <td>
+              <a href="/disciplines/id/{{dis.id}}"
+                ><button type="button" class="btn btn-success bg-green-600" title="Ver mas detalles">
+                  <i class="fa-solid fa-eye"></i></button
+              ></a>
+              <button
+                type="button"
+                class="btn btn-warning bg-yellow-500"
+                onclick="handle_open('{{dis.id}}','{{dis.name}}','{{dis.monthly_price}}')"
+                alt="Editar"
+                title="Editar disciplina"
+              >
+                <i class="fa-solid fa-pen-to-square text-white"></i>
+              </button>
+              {% if dis.enabled %}
+              <form action="/disciplines/disable/{{dis.id}}/{{page}}" class="p-0 m-0 inline" method="post">
+                <button
+                  type="submit"
+                  class="btn btn-warning bg-yellow-500"
+                  title="Desactivar disciplina"
+                  alt="Desactivar disciplina"
+                >
+                  <i class="fa-solid fa-minus text-white"></i>
+                </button>
+              </form>
+              {% else %}
+              <form action="/disciplines/disable/{{dis.id}}/{{page}}" class="p-0 m-0 inline" method="post">
+                <button
+                  type="submit"
+                  class="btn btn-success bg-green-600"
+                  title="Activar disciplina"
+                  alt="Activar disciplina"
+                >
+                  <i class="fa-solid fa-plus text-white"></i>
+                </button>
+              </form>
+              {% endif %} {% if session['user'] is defined %} {% for rol in session['user'].roles %} {% if rol ==
+              'administrador' %}
+              <button
+                type="button"
+                onclick="handle_open_destroy('{{ dis.id }}')"
+                class="btn btn-danger bg-red-600"
+                alt="Borrar disciplina"
+                title="Borrar disciplina"
+              >
+                <i class="fa-solid fa-trash-can text-white"></i>
+              </button>
+              {% endif %}{% endfor %}{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if disciplines|length > 0 %} {% include 'utils/pagination.html' %} {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Crear nueva disciplina</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST">
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.name.label }} {{ form.name(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{form.hidden_tag() }} {{ form.monthly_price.label }} {{ form.monthly_price(class="form-control") }}
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <input type="submit" value="Crear!" class="btn btn-primary block ml-auto bg-blue-900" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="modalEdit"
+  tabindex="-1"
+  aria-labelledby="modalEdit"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEdit">Editar disciplina</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="/disciplines/edit/{{page}}" method="POST">
+          <div class="form-group">
+            {{form_edit.hidden_tag() }} {{ form_edit.new_name.label }} {{ form_edit.new_name(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{form_edit.hidden_tag() }} {{ form_edit.new_monthly_price.label }} {{
+            form_edit.new_monthly_price(class="form-control") }}
+          </div>
+          <div class="form-group hidden">
+            {{form_edit.hidden_tag() }} {{ form_edit.id_anterior.label }} {{ form_edit.id_anterior(class="form-control")
+            }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <input type="submit" value="Editar!" class="btn btn-primary block ml-auto bg-blue-900" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="modal_destroy"
+  tabindex="-1"
+  aria-labelledby="modal_destroy"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal_destroy">Estas seguro que quieres eliminar?</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Se eliminarán <strong>todas</strong> las categorías asociadas y <strong>todos</strong> los asociados que se
+          encuentren inscriptos.
+        </p>
+        <p>
+          <strong><mark>¿Está seguro que desea continuar?</mark></strong>
+        </p>
+        <form id="form_destroy" action="idk" method="POST">
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <input
+              onclick="handle_on_destroy('{{page}}')"
+              id="destroy_discipline"
+              value="Eliminar!"
+              class="btn btn-primary block ml-auto bg-blue-900"
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock main %}

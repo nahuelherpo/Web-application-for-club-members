@@ -1,0 +1,82 @@
+{% extends 'layout.html' %} {% block title %}Lista de Usuarios{% endblock %} {% block main %}
+<div class="md:w-1/2 w-full m-auto">
+  <div class="container pt-2">
+    <div class="card">
+      <h2 class="card-header text-2xl" style="text-align:center;">Pagos de {{associate.surname}} {{associate.name}}</h2>
+      <div class="card-body">
+        <span>
+          Las cuotas vencidas tienen un recargo aplicado de {{surcharge * 100}}% 
+        </span>
+        <br>
+        {% if slow_payer %}
+            <span><b>Atención! Este asociado debe cuotas vencidas</b></span>
+        {% endif %}
+        <ul class="list-group">
+        {% for f in fees %}
+          <li class="list-group-item">
+            Cuota de 
+            {{ months[f.month - 1] }} del {{f.year}}, Estado:
+            {%if f.paid%}
+                PAGADA
+            {% else %}
+                IMPAGA
+            {% endif%},
+            {% if not f.paid %}
+              {% if f.expiration_date < today %}
+                Valor: {{f.amount_to_pay + f.amount_to_pay * surcharge }}
+              {% else %}
+                Valor: {{f.amount_to_pay}}
+              {% endif %},
+            {% endif %}
+            VTO: {{f.expiration_date.strftime('%d/%m/%y')}}
+            
+            {%if f.paid%}
+            <form method="GET" action="/payments/create_pdf_receipt/{{f.id}}/{{associate.id}}">
+              <input type="submit" value="Descargar recibo" class="btn btn-primary bg-blue-800 mt-2" />
+            </form>
+            {% else %}
+            <button type="button" class="btn btn-success bg-blue-900 mt-2" data-bs-toggle="modal" data-bs-target="#pay_modal{{f.id}}">
+                Pagar
+            </button>
+            {% endif%}
+            <!-- MODAL -->
+            <div class="modal fade" id="pay_modal{{f.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle{{f.id}}">
+                        Registrar pago para la cuota de {{ months[f.month - 1] }} del {{f.year}}
+                    </h5>
+                  </div>
+                  <div class="modal-body" style="text-align: center;">
+                    <form method="POST" {% if f.expiration_date < today %}
+                    action="/payments/create_fee_receipt/{{f.id}}/{{associate.id}}/{{f.amount_to_pay + f.amount_to_pay * surcharge}}"
+                  {% else %}
+                  action="/payments/create_fee_receipt/{{f.id}}/{{associate.id}}/{{f.amount_to_pay}}"
+                  {% endif %}>
+                        <div class="form-group">
+                            {{ form.hidden_tag() }} {{ form.paid_by.label }} {{ form.paid_by(class="form-control resize-none") }}
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+                          <input type="submit" value="Confirmar" class="btn btn-warning block ml-auto bg-yellow-300" />
+                        </div>
+                      </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </li>
+        {% endfor %}
+        </ul>
+        <div style="text-align: center;">
+          <a href="/payments" class="btn btn-danger bg-red-600 mt-2" type="button">Volver</a>
+        </div>
+      </div>
+    </div>
+    {% if nums > 0 %}
+      {% include 'utils/pagination.html' %}
+    {% endif %}
+  </div>
+</div>
+{% endblock main %}

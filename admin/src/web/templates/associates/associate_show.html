@@ -1,0 +1,175 @@
+{% extends 'layout.html' %} {% block title %}Informacion del Asociado{% endblock %} {% block main %}
+<div class="md:w-1/2 w-full m-auto">
+  <div class="container pt-2">
+    <div class="card">
+      <h2 class="card-header text-2xl">Informacion completa del asociado</h2>
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item">Nombre: {{associate.name}}</li>
+          <li class="list-group-item">Apellido: {{associate.surname}}</li>
+          <li class="list-group-item">Tipo de documento: {{associate.document_type.value}}</li>
+          <li class="list-group-item">Número de documento: {{associate.document_number}}</li>
+          <li class="list-group-item">Género: {{associate.gender.value}}</li>
+          <li class="list-group-item">Dirección: {{associate.address}}</li>
+          <li class="list-group-item">Estado: {% if associate.status %}Activo{% else %}Inactivo{% endif %}</li>
+          <li class="list-group-item">Número de teléfono: {{associate.phone_number}}</li>
+          <li class="list-group-item">Dirección de email: {{associate.email}}</li>
+        </ul>
+        <br>
+        <p> <Strong> Generar carnet de asociado </Strong></p>
+        <br>
+        <button type="button"  class="btn btn-danger bg-red-600" data-bs-toggle="modal" data-bs-target="#livePhoto">Sacar foto</button>
+        <button type="button"  class="btn btn-danger bg-red-600" data-bs-toggle="modal" data-bs-target="#uploadPhoto">Subir foto</button>
+        {% if associate.card_issue_date %}
+        <button type="button" class="btn btn-danger bg-red-600">
+          <form action="{{url_for('associates.export_card',id=associate.id)}}" method="get">
+            <input type="submit" value="Exportar Carnet"> 
+          </form>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="modal fade modal-lg" id="livePhoto" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="livePhotoTitle">TOMAR FOTO CARNET</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          <div class="container">	
+            <div class="row">
+            <div class="col-sm-3">
+              <button class="btn btn-primary bg-blue-900" id="reset" style="display: none;">Eliminar foto</button>
+              <button class="btn btn-primary bg-blue-900" id="take" style="display: block;">Tomar foto</button>
+            </div>
+            <div class="col-sm-6">
+              <video id="video" width="320" height="240" autoplay style="background-color: grey"></video>
+              <form>
+                <canvas id="canvas" width="320" height="240" style="display: none" ></canvas>
+              </div>
+              <br>
+              <div class="col-sm-3"></div>
+            </div>
+            </div><!--  end row -->
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <button id="send" type="submit" class="btn btn-warning" disabled>Crear carnet</button>
+          </form>
+          </div>
+        </div> 
+        </div>
+    </div>
+
+    <div class="modal fade" id="uploadPhoto" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="uploadPhotoTitle">ELIMINAR ASOCIADO</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" style="text-align: center;">
+            Por favor seleccione que foto desea elegir para el asociado
+            <form action="{{url_for('associates.card_new',id=associate.id)}}" method="post" enctype="multipart/form-data">
+              <input type="file" name="image" id="image" accept="image/*">
+          </div>  
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+            <input type="submit" value="Confirmar" class="btn btn-warning">
+          </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if associate.disciplines_practiced|length > 0 %}
+    <h2 class="h4 mt-2 mb-2">Inscripciones:</h2>
+    <div>
+      <table class="table table-light table-striped table-bordered table-sm table-responsive shadow-md">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">Nombre disciplina:</th>
+            <th scope="col">Precio mensual:</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inscription in associate.disciplines_practiced %}
+          <tr>
+            <td>{{inscription.name}}</td>
+            <td>{{inscription.monthly_price}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script language="JavaScript">
+  // Configure a few settings and attach camera 250x187
+  var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
+
+// Get access to the camera!
+if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    // Not adding `{ audio: true }` since we only want video now
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        //video.src = window.URL.createObjectURL(stream);
+        video.srcObject = stream;
+        video.play();
+    });
+}
+
+document.getElementById("reset").addEventListener("click", function reset(){
+  video.style.display = ""
+    canvas.style.display = "none"
+    document.getElementById('send').disabled = true
+    document.getElementById("take").style.display = ""
+    document.getElementById("reset").style.display = "none"
+})
+
+// Trigger photo take
+document.getElementById("take").addEventListener("click", function take() {
+    context.drawImage(video, 0, 0, 320, 240); // copy frame from <video>
+    video.style.display = "none"
+    canvas.style.display = ""
+    document.getElementById('send').disabled = false
+    document.getElementById("take").style.display = "none"
+    document.getElementById("reset").style.display = ""
+})
+
+document.getElementById("send").addEventListener("click", function send() {
+    canvas.toBlob(upload, "image/jpeg");  // convert to file and execute function `upload`
+});
+
+function upload(file) {
+    // create form and append file
+    var formdata =  new FormData();
+    formdata.append("image", file);
+    
+    // create AJAX requests POST with file
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "{{url_for('associates.card_new',id=associate.id)}}", true);
+    xhr.onload = function() {
+        if(this.status = 200) {
+            console.log(this.response);
+        } else {
+            console.error(xhr);
+        }
+        alert(this.response);
+    };
+    xhr.send(formdata);
+}
+
+
+</script>
+{% endblock main %}

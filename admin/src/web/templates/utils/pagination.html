@@ -1,0 +1,58 @@
+<br>
+<nav class="pb-3">
+  <ul class="pagination overflow-auto">
+    {% if page > 3 %}
+    <li class="page-item">
+      <a class="page-link bg-white text-black" href="./1">Ir al principio</a>
+    </li>
+    {% endif %}
+    {% if page > 1 %}
+    <li class="page-item">
+      <a class="page-link bg-white text-black" href="./{{page-1}}">Anterior</a>
+    </li>
+    {% endif %}
+
+    {% if page > 2 and page < nums - 2 %}
+      {% for num in range(page-2,page+3,1) %} {% if page==num %}
+      <li class="page-item active"><a class="page-link bg-white text-black">{{num}}</a></li>
+      {% else %}
+      <li class="page-item"><a class="page-link bg-white text-black" href="./{{num}}">{{num}} </a></li>
+      {% endif %} {% endfor %}     
+      
+    {% else %}
+      {% if page < nums - 2 %}
+        {% for num in range(1, page+3, 1) %} {% if page==num %}
+        <li class="page-item active"><a class="page-link bg-white text-black">{{num}}</a></li>
+        {% else %}
+        <li class="page-item"><a class="page-link bg-white text-black" href="./{{num}}">{{num}} </a></li>
+        {% endif %} {% endfor %}
+
+      {% else %}
+        {% if page > 2 %}
+          {% for num in range(page-2,nums+1,1) %} {% if page==num %}
+          <li class="page-item active"><a class="page-link bg-white text-black">{{num}}</a></li>
+          {% else %}
+          <li class="page-item"><a class="page-link bg-white text-black" href="./{{num}}">{{num}} </a></li>
+          {% endif %} {% endfor %}
+        {% else %}
+          {% for num in range(1,nums+1,1) %} {% if page==num %}
+          <li class="page-item active"><a class="page-link bg-white text-black">{{num}}</a></li>
+          {% else %}
+          <li class="page-item"><a class="page-link bg-white text-black" href="./{{num}}">{{num}} </a></li>
+          {% endif %} {% endfor %}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+
+    {% if page < (nums) %}
+    <li class="page-item">
+      <a class="page-link bg-black bg-white text-black" href="./{{page+1}}">Siguiente</a>
+    </li>
+    {% endif %}
+    {% if page < (nums-2) %}
+    <li class="page-item">
+      <a class="page-link bg-black bg-white text-black" href="./{{nums}}">Ir al final</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>

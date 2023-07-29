@@ -1,0 +1,46 @@
+<nav class="navbar sticky-top bg-dark">
+  <div class="container">
+    <div class="dropdown m-0 p-0">
+      <div
+        class="flex items-center hover:sepia text-yellow-400"
+        class="dropdown-toggle"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        type="button"
+      >
+        <img src="{{ url_for('static', filename='img/logo_club.svg') }}" class="rounded-full w-1/4 mr-1" />
+        <i class="fa-solid fa-angle-down text-white"></i>
+      </div>
+      <ul class="dropdown-menu">
+        {% if session['user'] is defined %} {% for rol in session['user']['roles'] %} {% if rol == 'administrador' %}
+        <a href="/users/1">
+          <li>
+            <button class="dropdown-item" type="button">Usuarios</button>
+          </li>
+        </a>
+        <a href="/config">
+          <li>
+            <button class="dropdown-item" type="button">Configuración</button>
+          </li>
+        </a>
+        <a href="/payments">
+          <li>
+            <button class="dropdown-item" type="button">Gestión de pagos</button>
+          </li>
+        </a>
+        {% endif %} {% endfor %} {% endif %}
+        <a href="{{url_for('associates.associates_index',page=1)}}"
+          ><li><button class="dropdown-item" type="button">Asociados</button></li></a
+        >
+
+        <a href="/disciplines/1">
+          <li><button class="dropdown-item" type="button">Disciplinas</button></li>
+        </a>
+      </ul>
+    </div>
+    {% if session['user'] is defined %}
+    <h3 class="text-white">Bienvenido: {{session['user'].email}}</h3>
+    {% endif %}
+    <a href="/auth/logout" type="button" class="btn btn-danger">Cerrar sesión </a>
+  </div>
+</nav>

@@ -1,0 +1,343 @@
+{% extends 'layout.html' %} {% block title %}Lista de Usuarios{% endblock %} {% block main %}
+<div class=" w-full m-auto">
+  <div class="container pt-2">
+    <div class="card">
+      <h2 class="card-header text-2xl">Lista de usuarios</h2>
+      <div class="card-body">
+        <div class="container">
+          <div>
+            <form method="get" action="/users/new/">
+              <input type="submit" value="Crear usuario" class="btn btn-primary bg-blue-900 mt-2">
+            </form>
+          </div>
+          <div>
+            <form action="{{url_for('user.user_filtered_index')}}" method="get">
+    
+              <div class="row mt-2 mb-2">
+           
+              
+              <div class="col-sm">
+               <input type="text" name="email" id="email" class="form-control" placeholder="Ingrese el mail que quiere buscar" value="{{email}}">
+             </div>
+               <div class="col-sm">
+               <select name="state" id="state" class="form-select w-30">
+                 <option value="" {% if state == '' %} selected {% endif %}>Todos</option>
+                 <option value="True" {% if state == 'True' %} selected {% endif %} >Activos</option>
+                 <option value="False" {% if state == 'False' %} selected {% endif %}>Inactivos</option>
+               </select>
+             </div>
+               <input type="text" hidden id="page" name="page" value="1">
+               <div class="col-sm">
+               <input type="submit" value="Buscar" class="btn btn-primary bg-blue-900">
+             </div>
+             </div>
+            </form>
+        </div>
+          </div>
+        <table class="table table-light table-hover table-bordered table-sm table-responsive shadow-md" style="text-align: center;">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Email</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td>{{u.id}}</td>
+              <td>{{u.username}}</td>
+              <td>{{u.email}}</td>
+              {% if u.active %}
+                <td>Activo</td>
+              {% else %}
+                <td>No activo</td>
+              {% endif %}
+              <td>
+                <span>
+                  <a href="/users/edit/{{u.id}}" class="btn btn-outline-warning bg-yellow-500" type="button" style="margin-left: 10%;" alt="Botón para editar usuario" data-toggle="tooltip" data-html="true" title="Editar usuario">
+                    <i class="fa-solid fa-pen-to-square text-white"></i>
+                  </a>
+                </span>
+                <button type="button" class="btn btn-danger bg-red-600" data-bs-toggle="modal" data-bs-target="#exampleModalCenter{{u.id}}" alt="Botón para eliminar usuario" data-toggle="tooltip" data-html="true" title="Eliminar usuario">
+                  <i class="fa-solid fa-trash-can text-white"></i>
+              </button>
+                {% if session['user'] is defined %} {% for rol in session['user'].roles %} {% if rol ==
+                'administrador' %}
+                <button type="button" class="btn btn-primary bg-blue-900" data-bs-toggle="modal" data-bs-target="#role-modal{{u.id}}" alt="Botón para agregar un rol al usuario" data-toggle="tooltip" data-html="true" title="Agregar rol al usuario">
+                  <i class="fa-solid fa-user-plus text-white"></i></button>
+                </button>
+                <button type="button" class="btn btn-primary bg-blue-900" data-bs-toggle="modal" data-bs-target="#unrole-modal{{u.id}}" alt="Botón para quitar un rol al usuario" data-toggle="tooltip" data-html="true" title="Quitar rol al usuario">
+                  <i class="fa-solid fa-user-minus text-white"></i></button>
+                </button>
+                <button type="button" class="btn {% if u.active == True %} btn-danger bg-red-600 {% else %} btn-success bg-green-600 {% endif %}" 
+                    data-bs-toggle="modal" data-bs-target="#status-modal{{u.id}}" {% if u.active == True %} alt="Botón para desactivar usuario" data-toggle="tooltip" data-html="true" title="Desactivar usuario" 
+                    {% else %} alt="Botón para activar usuario" data-toggle="tooltip" data-html="true" title="Activar usuario" {% endif %}>
+                  <i class="fa-regular {% if u.active == True %} fa-circle-xmark {% else %} fa-circle-check {% endif %} text-white"></i>
+                </button>
+                {% endif %}{% endfor %}{% endif %}
+              </td>
+            </tr>
+            <!-- MODAL -->
+            <div class="modal fade" id="exampleModalCenter{{u.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle{{u.id}}">ELIMINAR USUARIO</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" style="text-align: center;">
+                    <h3>El usuario será eliminado permanentemente</h3>
+                    <p>¿Está seguro que desea eliminarlo?</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post" action="/users/delete/{{u.id}}">
+                      <input type="submit" value="Confirmar" class="btn btn-warning">
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal fade" id="role-modal{{u.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="role-modal{{u.id}}">ASIGNAR ROL AL USUARIO</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" style="text-align: center;">
+                    <h3>¿Qué rol desea asignarle al usuario {{u.name}}?</h3>
+                    <form method="post" action="{{url_for('user.user_assign_role')}}">
+                      <input type="text" id="user_id" name="user_id" value="{{u.id}}" hidden>
+                      <select name="role_name" id="role_name">
+                        <option value="operador">Operador</option>
+                        <option value="administrador">Administrador</option>
+                      </select>
+                    </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+                      <input type="submit" value="Confirmar" class="btn btn-warning">
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal fade" id="unrole-modal{{u.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="unrole-modal{{u.id}}">DESASIGNAR ROL AL USUARIO</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" style="text-align: center;">
+                    <h3>¿Qué rol desea asignarle al usuario {{u.name}}?</h3>
+                    <form method="post" action="{{url_for('user.user_unassign_role')}}">
+                      <input type="number" id="user_id" name="user_id" value="{{u.id}}" hidden>
+                      <select name="role_name" id="role_name">
+                        <option value="operador">Operador</option>
+                        <option value="administrador">Administrador</option>
+                      </select>
+                    </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+                      <input type="submit" value="Confirmar" class="btn btn-warning">
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal fade" id="status-modal{{u.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="status-modal-title{{u.id}}">{% if u.active %}DESHABILITAR {% else %} HABILITAR {% endif %}ASOCIADO </h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body" style="text-align: center;">
+                    <h3>El asociado será {% if u.active %}deshabilitado {% else %} habilitado {% endif %}</h3>
+                    <p>¿Está seguro que desea {% if u.active %}deshabilitarlo {% else %} habilitarlo {% endif %}?</p>
+                  </div>
+                  <div class="modal-footer">
+                    <form method="post" {% if u.active %} action="{{url_for('user.user_deactivate')}}" {% else %} action="{{url_for('user.user_activate')}}" {% endif %}>
+                      <input type="text" name="user_id" id="user_id" hidden value="{{u.id}}">
+                    <button type="button" class="btn btn-danger bg-red-600" data-bs-dismiss="modal">Cancelar</button>
+                      <input type="submit" value="Confirmar" class="btn btn-warning">
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </li>
+        {% endfor %}
+          </tbody>
+        </table>
+        {% if users|length > 0 %} {% if filter != True %} {% include 'utils/pagination.html' %} {% else %} 
+        <nav class="pb-3">
+          <h3 class="mb-3">Ir a la página:</h3>
+          <ul class="pagination overflow-auto">
+            {% if page > 3 %}
+            <form action="">
+              <li class="page-item">
+                <input type="text" id="state" name="state" value="{{state}}" hidden>
+                <input type="text" id="email" name="email" value="{{email}}" hidden>
+                <input type="text" id="page" name="page" value="1" hidden>
+                <input type="submit" class="page-link bg-black text-white" value="Ir al principio"></a>
+              </li>
+            </form>
+            {% endif %}
+            {% if page > 1 %}
+            <form action="">
+            <li class="page-item">
+              <input type="text" id="state" name="state" value="{{state}}" hidden>
+              <input type="text" id="email" name="email" value="{{email}}" hidden>
+              <input type="text" id="page" name="page" value="{{page-1}}" hidden>
+              <input type="submit" class="page-link bg-black text-white" value="Anterior"></a>
+            </li>
+            </form>
+            {% endif %}
+
+            {% if page > 2 and page < nums - 2 %}
+              {% for num in range(page-2,page+3,1) %} {% if page==num %}
+                <form action="">
+                  <li class="page-item">
+                    <input type="text" id="state" name="state" value="{{state}}" hidden>
+                    <input type="text" id="email" name="email" value="{{email}}" hidden>
+                    <input type="text" id="page" name="page" value="{{num}}" hidden>
+                    <input type="submit" class="page-link bg-white text-black" value="{{num}}"></a>
+                  </li>
+                </form>
+                {% else %}
+                <form action="">
+                  <li class="page-item">
+                    <input type="text" id="state" name="state" value="{{state}}" hidden>
+                    <input type="text" id="email" name="email" value="{{email}}" hidden>
+                    <input type="text" id="page" name="page" value="{{num}}" hidden>
+                    <input type="submit" class="page-link bg-black text-white" value="{{num}}"></a>
+                  </li>
+                </form>
+              {% endif %} {% endfor %}     
+            {% else %}
+              {% if page < nums - 2 %}
+                {% for num in range(1, page+3, 1) %} {% if page==num %}
+                  <form action="">
+                    <li class="page-item">
+                      <input type="text" id="state" name="state" value="{{state}}" hidden>
+                      <input type="text" id="email" name="email" value="{{email}}" hidden>
+                      <input type="text" id="page" name="page" value="{{num}}" hidden>
+                      <input type="submit" class="page-link bg-white text-black" value="{{num}}"></a>
+                    </li>
+                  </form>
+                  {% else %}
+                  <form action="">
+                    <li class="page-item">
+                      <input type="text" id="state" name="state" value="{{state}}" hidden>
+                      <input type="text" id="email" name="email" value="{{email}}" hidden>
+                      <input type="text" id="page" name="page" value="{{num}}" hidden>
+                      <input type="submit" class="page-link bg-black text-white" value="{{num}}"></a>
+                    </li>
+                  </form>
+                {% endif %} {% endfor %}
+      
+              {% else %}
+                {% if page > 2 %}
+                  {% for num in range(page-2,nums+1,1) %} {% if page==num %}
+                    <form action="">
+                      <li class="page-item">
+                        <input type="text" id="state" name="state" value="{{state}}" hidden>
+                        <input type="text" id="email" name="email" value="{{email}}" hidden>
+                        <input type="text" id="page" name="page" value="{{num}}" hidden>
+                        <input type="submit" class="page-link bg-white text-black" value="{{num}}"></a>
+                      </li>
+                    </form>
+                    {% else %}
+                    <form action="">
+                      <li class="page-item">
+                        <input type="text" id="state" name="state" value="{{state}}" hidden>
+                        <input type="text" id="email" name="email" value="{{email}}" hidden>
+                        <input type="text" id="page" name="page" value="{{num}}" hidden>
+                        <input type="submit" class="page-link bg-black text-white" value="{{num}}"></a>
+                      </li>
+                    </form>
+                  {% endif %} {% endfor %}
+                {% else %}
+                  {% for num in range(1,nums+1,1) %} {% if page==num %}
+                    <form action="">
+                      <li class="page-item">
+                        <input type="text" id="state" name="state" value="{{state}}" hidden>
+                        <input type="text" id="email" name="email" value="{{email}}" hidden>
+                        <input type="text" id="page" name="page" value="{{num}}" hidden>
+                        <input type="submit" class="page-link bg-white text-black" value="{{num}}"></a>
+                      </li>
+                    </form>
+                    {% else %}
+                    <form action="">
+                      <li class="page-item">
+                        <input type="text" id="state" name="state" value="{{state}}" hidden>
+                        <input type="text" id="email" name="email" value="{{email}}" hidden>
+                        <input type="text" id="page" name="page" value="{{num}}" hidden>
+                        <input type="submit" class="page-link bg-black text-white" value="{{num}}"></a>
+                      </li>
+                    </form>
+                  {% endif %} {% endfor %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+
+            {% for num in range(page-2,page+2,1) %} {% if page==num %}
+            <form action="">
+              <li class="page-item">
+                <input type="text" id="state" name="state" value="{{state}}" hidden>
+                <input type="text" id="email" name="email" value="{{email}}" hidden>
+                <input type="text" id="page" name="page" value="{{num}}" hidden>
+                <input type="submit" class="page-link bg-white text-black" value="{{num}}"></a>
+              </li>
+            </form>
+            {% else %}
+            <form action="">
+              <li class="page-item">
+                <input type="text" id="state" name="state" value="{{state}}" hidden>
+                <input type="text" id="email" name="email" value="{{email}}" hidden>
+                <input type="text" id="page" name="page" value="{{num}}" hidden>
+                <input type="submit" class="page-link bg-black text-white" value="{{num}}"></a>
+              </li>
+            </form>
+            {% endif %} {% endfor %} {% if page < (nums ) %}
+            <form action="">
+              <li class="page-item">
+                <input type="text" id="state" name="state" value="{{state}}" hidden>
+                <input type="text" id="email" name="email" value="{{email}}" hidden>
+                <input type="text" id="page" name="page" value="{{page+1}}" hidden>
+                <input type="submit" class="page-link bg-black text-white" value="Siguiente"></a>
+              </li>
+            </form>
+            {% endif %}
+            {% if page < (nums-2) %}
+            <form action="">
+              <li class="page-item">
+                <input type="text" id="state" name="state" value="{{state}}" hidden>
+                <input type="text" id="email" name="email" value="{{email}}" hidden>
+                <input type="text" id="page" name="page" value="{{nums}}" hidden>
+                <input type="submit" class="page-link bg-black text-white" value="Ir al final"></a>
+              </li>
+            </form>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+        {% endif %}
+</div>
+</div>
+  </div></div>
+
+{% endblock main %}
